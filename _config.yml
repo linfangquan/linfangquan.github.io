@@ -87,7 +87,7 @@ footer:
 
 # Site Settings
 locale: "en-US"
-title                    : "Linfq's Blog"
+title                    : "FANGQUAN LIN'S BLOG"
 title_separator          : "-"
 subtitle                 : ""
 name                     : &name "Fangquan Lin" # &name is a YAML anchor which can be *referenced later
