@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.0.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2020-01-01T23:27:33+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Linfq’s Blog</title><subtitle>A flexible Jekyll theme for your blog or site with a minimalist aesthetic.</subtitle><author><name>{&quot;name&quot;=&gt;nil, &quot;avatar&quot;=&gt;&quot;/assets/images/linfq.jpg&quot;, &quot;bio&quot;=&gt;&quot;A Machine Learning Engineer&quot;, &quot;location&quot;=&gt;&quot;China&quot;, &quot;email&quot;=&gt;&quot;fangquanlin@gmail.com&quot;, &quot;links&quot;=&gt;[{&quot;label&quot;=&gt;&quot;GitHub&quot;, &quot;icon&quot;=&gt;&quot;fab fa-fw fa-github&quot;, &quot;url&quot;=&gt;&quot;https://github.com/linfangquan&quot;}, {&quot;label&quot;=&gt;&quot;LinkedIn&quot;, &quot;icon&quot;=&gt;&quot;fab fa-fw fa-linkedin&quot;, &quot;url&quot;=&gt;&quot;https://www.linkedin.com/in/linfq/&quot;}]}</name><email>fangquanlin@gmail.com</email></author><entry><title type="html">NCE Revisited</title><link href="http://localhost:4000/machine-learning/2020/01/01/nce.html" rel="alternate" type="text/html" title="NCE Revisited" /><published>2020-01-01T19:02:55+08:00</published><updated>2020-01-01T19:02:55+08:00</updated><id>http://localhost:4000/machine-learning/2020/01/01/nce</id><content type="html" xml:base="http://localhost:4000/machine-learning/2020/01/01/nce.html">&lt;head&gt;
+    &lt;script src=&quot;https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML&quot; type=&quot;text/javascript&quot;&gt;&lt;/script&gt;
+    &lt;script type=&quot;text/x-mathjax-config&quot;&gt;
+        MathJax.Hub.Config({
+            tex2jax: {
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+            inlineMath: [['$','$']]
+            }
+        });
+    &lt;/script&gt;
+&lt;/head&gt;
+
+&lt;h2 id=&quot;1-what-is-nce&quot;&gt;1 What is NCE&lt;/h2&gt;
+
+&lt;p&gt;Denote by $X = (x_1,…,x_T)$ the observed data set, consisting of  $T$ observations of the data $x$, and by $Y = (y_1,…,y_T)$ and artificiallygenerated data set of noise $y$ with distribution $p_n(.)$.  The estimator $\widehat{\theta}_T$ is defined to be the $\theta$ which maximizes the objective function&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;J_T(\theta) = \frac{1}{2T}\sum{\bigg[\ln[h(\textbf{x}_t;\theta)] + \ln[1-h(\textbf{y}_t;\theta)]\bigg]}&lt;/script&gt;
+
+&lt;p&gt;where&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;h(\textbf{u};\theta) = \frac{1}{1-\exp[-G(\textbf{u};\theta)]}&lt;/script&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;G(\textbf{u};\theta) = \ln{p_m(\textbf{u};\theta)} - \ln{p_n(\textbf{u})}&lt;/script&gt;
+
+&lt;p&gt;We denote the logistic function by $\sigma(.)$ so that $h(\textbf{u};\theta) = \sigma(G(\textbf{u};\theta))$.&lt;/p&gt;
+
+&lt;h2 id=&quot;2-why-does-nce-work-in-lm&quot;&gt;2 Why does NCE work in LM&lt;/h2&gt;
+
+&lt;p&gt;In Language Models, $\textbf{u} = (c; w)$ , $p_n(u) = p_n(c,w) = p_n(w|c)p_n(c)$ .In practice, for simplify we usually set $p_n(c)=p_d(c)$  and $p_n(w|c) = p_n(w)$.&lt;/p&gt;
+
+&lt;p&gt;NCE learns a logistic regression model to discriminate betwee samples generated from observed data distribution and samples generated from noise distribution.&lt;/p&gt;
+
+&lt;p&gt;Notice that $h(\textbf{u};\theta)$ is the estimated probability that $\textbf{u}$ is  generated from observed data distribution and 
+&lt;script type=&quot;math/tex&quot;&gt;% &lt;![CDATA[
+\begin{equation}\begin{split}\exp{G(c;w;\theta)} &amp;=  \exp{G(\textbf{u};\theta)} \\&amp;= \frac{p_m(\textbf{u};\theta)}{p_n(u)}\\&amp;=\frac{p_m(w\|c;\theta) \cdot p_d(c)}{p_n(w) \cdot p_n(c)}\\&amp;=\frac{p_m(w\|c;\theta)}{p_n(w)}\end{split}\end{equation} %]]&gt;&lt;/script&gt;&lt;/p&gt;
+
+&lt;p&gt;.&lt;/p&gt;
+
+&lt;p&gt;So that we easily have $p_m(w|c;\theta) = p_n(w)\cdot\exp{G(c;w;\theta)}$  .&lt;/p&gt;
+
+&lt;p&gt;Intuitively NCE estimates  $p_m(w|c;\theta)$ by estimating the ratio of  $p_m(w|c;\theta)$ to a known distribution  $p_n(w)$ .&lt;/p&gt;
+
+&lt;h2 id=&quot;3-why-can-nce-self-normalize&quot;&gt;3 Why Can NCE Self-Normalize&lt;/h2&gt;
+
+&lt;p&gt;Notice that $\exp{G(c;w;\theta)} = \frac{p_m(w|c;\theta)}{p_n(w)}$ and LM is a discrete probability problem, $p_n(w)$ and  $p_d(c|w)$  and $p_m(c|w;\theta)$ become probability mass functions. When both the observed data samples and the noise samples are large enough and the logistic regression loss $J_T(\theta)$ converges, $\exp{G(c;w;\theta)}$ is just the estimated value of $\frac{N_d(c,w)}{N_n(\textbf(c,w))}$ , where $N_d(c,w)$ is the number of appearances of $(c,w)$ in observed data samples and $N_n(c,w)$ is the number of appearances of $(c,w)$ in noise data samples.&lt;/p&gt;
+
+&lt;p&gt;Notice that $\sum\limits_wN_d(c,w) = \sum\limits_wN_n(c,w) = N(c)$ , we have
+&lt;script type=&quot;math/tex&quot;&gt;% &lt;![CDATA[
+\begin{equation}\begin{split}p_m(w\|c;\theta)&amp;=p_n(w)\cdot\exp{G(c;w;\theta)}\\&amp;\approx p_n(w)\frac{N_d(c,w)}{N_n(\textbf(c,w))} \\ &amp;\approx  p_n(w)\frac{N(c) \cdot p_d(w\|c)}{N(c) \cdot p_n(w))} \\ &amp;= p_d(w\|c)\end{split}\end{equation} %]]&gt;&lt;/script&gt;&lt;/p&gt;
+
+&lt;p&gt;, then&lt;/p&gt;
+
+&lt;p&gt;&lt;script type=&quot;math/tex&quot;&gt;\sum_w p_m(w\|c;\theta) = \sum_w p_d(w\|c) = 1&lt;/script&gt;
+.&lt;/p&gt;
+
+&lt;h2 id=&quot;4-why-does-normalization-important-in-lm&quot;&gt;4 Why Does Normalization Important in LM&lt;/h2&gt;
+
+&lt;p&gt;In binary classification scenario, when we have modeled $p(y=1|x)$ as $p_m(y=1|x;\theta)$, usually we would just set  $\widehat{p}(y=0|x) = 1-p_m(y=1|x;\theta)$. Although it would also work to build another model $p_m(y=0|x;\theta)$ and normalize $p_m(y=0|x;\theta)$ and $p_m(y=1|x;\theta)$ add up to 1.&lt;/p&gt;
+
+&lt;p&gt;But notice LM is a multi-class classification problem. If we do not normalize $p_m(y|x;\theta)$ add up to 1 and we apply cross entropy as loss function, we may get a trivial solution that is for all class $c$,  $p_m(y=c|x;\theta) = 1$. Softmax is a widely used normalization functions, but when the number of category is large, the computational complexity of the denominator of softmax is extremely expensive.&lt;/p&gt;
+
+&lt;p&gt;Actually I think avoiding calculating the denominator of softmax is the main contribution of NCE.&lt;/p&gt;
+
+&lt;h2 id=&quot;5-where-is-k-from&quot;&gt;5 Where is K From&lt;/h2&gt;
+
+&lt;p&gt;In practice, for instance in the application of tf.nn.nce_loss, we modify the loss function to 
+&lt;script type=&quot;math/tex&quot;&gt;J_T(\theta) = \frac{1}{2T}\sum{\bigg[\sum_{i=1}^{M}\ln[h(\textbf{w}_{t,d,i};\textbf{c}_t;\theta)] + \sum_{j=1}^{K}\ln[1-h(\textbf{w}_{t,n,j};\textbf{c}_t;\theta)]\bigg]}&lt;/script&gt;
+.&lt;/p&gt;
+
+&lt;p&gt;Usually we set $M=1$ just like tf.nn.nce_loss set the default num_true to be 1.&lt;/p&gt;
+
+&lt;p&gt;Now notice that $\frac{\sum\limits_wN_d(c,w)}{M} = \frac{\sum\limits_wN_n(c,w)}{K} = N(c)$ ,  we have
+&lt;script type=&quot;math/tex&quot;&gt;% &lt;![CDATA[
+\begin{equation}\begin{split}p_m(w\|c;\theta)&amp;=p_n(w)\cdot\exp{G(c;w;\theta)}\\ &amp;\approx p_n(w)\frac{N_d(c,w)}{N_n(\textbf(c,w))} \\ &amp;\approx  p_n(w)\frac{M \cdot N(c) \cdot p_d(w\|c)}{K \cdot N(c) \cdot p_n(w))} \\ &amp;= \frac{M}{K}p_d(w\|c)\end{split}\end{equation} %]]&gt;&lt;/script&gt;&lt;/p&gt;
+
+&lt;p&gt;I notice that when $M \ne K$, the logit is not modeling $\frac{M}{K}p_d(w|c)$ instead of $p_d(w|c)$ . But certainly we can estimate  $p_d(w|c)$ by&lt;/p&gt;
+
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;\widehat{p}_d(w\|c) = \frac{K}{M}p_m(w\|c;\theta)&lt;/script&gt;
+
+&lt;p&gt;.&lt;/p&gt;
+
+&lt;p&gt;Similarly
+&lt;script type=&quot;math/tex&quot;&gt;\sum_w p_m(w\|c;\theta) = \frac{M}{K}\sum_w p_d(w\|c) = \frac{M}{K}&lt;/script&gt;
+, the model is not self-normalized to add up to 1 but $\frac{M}{K}$. But it does not matter.&lt;/p&gt;
+
+&lt;h2 id=&quot;6-choice-of-noise-distribution&quot;&gt;6 Choice of Noise Distribution&lt;/h2&gt;
+
+&lt;p&gt;Intuitively, the noise distribution should be close to the data distribution, because otherwise, the classification problem might be too easy and would not require the system to learn much about the structure of the data.&lt;/p&gt;
+
+&lt;p&gt;In practice, uniform distribution or Gaussian distribution performs good.&lt;/p&gt;
+
+&lt;h2 id=&quot;reference&quot;&gt;Reference&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Noise-contrastive estimation: A new estimation principle for unnormalized statistical models&lt;/li&gt;
+  &lt;li&gt;Notes on Noise Contrastive Estimation and Negative Sampling&lt;/li&gt;
+  &lt;li&gt;A fast and simple algorithm for training neural probabilistic language models&lt;/li&gt;
+  &lt;li&gt;Representation Learning with Contrastive Predictive Coding&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://leimao.github.io/article/Noise-Contrastive-Estimation/&quot;&gt;https://leimao.github.io/article/Noise-Contrastive-Estimation/&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</content><author><name>{&quot;name&quot;=&gt;nil, &quot;avatar&quot;=&gt;&quot;/assets/images/linfq.jpg&quot;, &quot;bio&quot;=&gt;&quot;A Machine Learning Engineer&quot;, &quot;location&quot;=&gt;&quot;China&quot;, &quot;email&quot;=&gt;&quot;fangquanlin@gmail.com&quot;, &quot;links&quot;=&gt;[{&quot;label&quot;=&gt;&quot;GitHub&quot;, &quot;icon&quot;=&gt;&quot;fab fa-fw fa-github&quot;, &quot;url&quot;=&gt;&quot;https://github.com/linfangquan&quot;}, {&quot;label&quot;=&gt;&quot;LinkedIn&quot;, &quot;icon&quot;=&gt;&quot;fab fa-fw fa-linkedin&quot;, &quot;url&quot;=&gt;&quot;https://www.linkedin.com/in/linfq/&quot;}]}</name><email>fangquanlin@gmail.com</email></author><summary type="html"></summary></entry></feed>

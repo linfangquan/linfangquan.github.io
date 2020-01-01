@@ -33,7 +33,7 @@ github_username:  linfangquan
 
 # theme: minimal-mistakes-jekyll
 
-remote_theme: "mmistakes/minimal-mistakes@4.17.2"
+remote_theme: "mmistakes/minimal-mistakes"
 
 plugins:
   - jekyll-feed

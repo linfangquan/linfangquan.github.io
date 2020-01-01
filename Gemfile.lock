@@ -241,7 +241,6 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  faraday (< 0.15.4)
   github-pages
 
 BUNDLED WITH

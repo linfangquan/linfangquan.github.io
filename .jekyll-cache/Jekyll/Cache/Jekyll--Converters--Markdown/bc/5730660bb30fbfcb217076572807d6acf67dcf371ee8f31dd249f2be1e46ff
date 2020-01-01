@@ -1,0 +1,101 @@
+I"<head>
+    <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            tex2jax: {
+            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+            inlineMath: [['$','$']]
+            }
+        });
+    </script>
+</head>
+
+<h2 id="1-what-is-nce">1 What is NCE</h2>
+
+<p>Denote by $X = (x_1,…,x_T)$ the observed data set, consisting of  $T$ observations of the data $x$, and by $Y = (y_1,…,y_T)$ and artificiallygenerated data set of noise $y$ with distribution $p_n(.)$.  The estimator $\widehat{\theta}_T$ is defined to be the $\theta$ which maximizes the objective function</p>
+
+<script type="math/tex; mode=display">J_T(\theta) = \frac{1}{2T}\sum{\bigg[\ln[h(\textbf{x}_t;\theta)] + \ln[1-h(\textbf{y}_t;\theta)]\bigg]}</script>
+
+<p>where</p>
+
+<script type="math/tex; mode=display">h(\textbf{u};\theta) = \frac{1}{1-\exp[-G(\textbf{u};\theta)]}</script>
+
+<script type="math/tex; mode=display">G(\textbf{u};\theta) = \ln{p_m(\textbf{u};\theta)} - \ln{p_n(\textbf{u})}</script>
+
+<p>We denote the logistic function by $\sigma(.)$ so that $h(\textbf{u};\theta) = \sigma(G(\textbf{u};\theta))$.</p>
+
+<h2 id="2-why-does-nce-work-in-lm">2 Why does NCE work in LM</h2>
+
+<p>In Language Models, $\textbf{u} = (c; w)$ , $p_n(u) = p_n(c,w) = p_n(w|c)p_n(c)$ .In practice, for simplify we usually set $p_n(c)=p_d(c)$  and $p_n(w|c) = p_n(w)$.</p>
+
+<p>NCE learns a logistic regression model to discriminate betwee samples generated from observed data distribution and samples generated from noise distribution.</p>
+
+<p>Notice that $h(\textbf{u};\theta)$ is the estimated probability that $\textbf{u}$ is  generated from observed data distribution and 
+<script type="math/tex">% <![CDATA[
+\begin{equation}\begin{split}\exp{G(c;w;\theta)} &=  \exp{G(\textbf{u};\theta)} \\&= \frac{p_m(\textbf{u};\theta)}{p_n(u)}\\&=\frac{p_m(w\|c;\theta) \cdot p_d(c)}{p_n(w) \cdot p_n(c)}\\&=\frac{p_m(w\|c;\theta)}{p_n(w)}\end{split}\end{equation} %]]></script></p>
+
+<p>.</p>
+
+<p>So that we easily have $p_m(w|c;\theta) = p_n(w)\cdot\exp{G(c;w;\theta)}$  .</p>
+
+<p>Intuitively NCE estimates  $p_m(w|c;\theta)$ by estimating the ratio of  $p_m(w|c;\theta)$ to a known distribution  $p_n(w)$ .</p>
+
+<h2 id="3-why-can-nce-self-normalize">3 Why Can NCE Self-Normalize</h2>
+
+<p>Notice that $\exp{G(c;w;\theta)} = \frac{p_m(w|c;\theta)}{p_n(w)}$ and LM is a discrete probability problem, $p_n(w)$ and  $p_d(c|w)$  and $p_m(c|w;\theta)$ become probability mass functions. When both the observed data samples and the noise samples are large enough and the logistic regression loss $J_T(\theta)$ converges, $\exp{G(c;w;\theta)}$ is just the estimated value of $\frac{N_d(c,w)}{N_n(\textbf(c,w))}$ , where $N_d(c,w)$ is the number of appearances of $(c,w)$ in observed data samples and $N_n(c,w)$ is the number of appearances of $(c,w)$ in noise data samples.</p>
+
+<p>Notice that $\sum\limits_wN_d(c,w) = \sum\limits_wN_n(c,w) = N(c)$ , we have
+<script type="math/tex">% <![CDATA[
+\begin{equation}\begin{split}p_m(w\|c;\theta)&=p_n(w)\cdot\exp{G(c;w;\theta)}\\&\approx p_n(w)\frac{N_d(c,w)}{N_n(\textbf(c,w))} \\ &\approx  p_n(w)\frac{N(c) \cdot p_d(w\|c)}{N(c) \cdot p_n(w))} \\ &= p_d(w\|c)\end{split}\end{equation} %]]></script></p>
+
+<p>, then</p>
+
+<p><script type="math/tex">\sum_w p_m(w\|c;\theta) = \sum_w p_d(w\|c) = 1</script>
+.</p>
+
+<h2 id="4-why-does-normalization-important-in-lm">4 Why Does Normalization Important in LM</h2>
+
+<p>In binary classification scenario, when we have modeled $p(y=1|x)$ as $p_m(y=1|x;\theta)$, usually we would just set  $\widehat{p}(y=0|x) = 1-p_m(y=1|x;\theta)$. Although it would also work to build another model $p_m(y=0|x;\theta)$ and normalize $p_m(y=0|x;\theta)$ and $p_m(y=1|x;\theta)$ add up to 1.</p>
+
+<p>But notice LM is a multi-class classification problem. If we do not normalize $p_m(y|x;\theta)$ add up to 1 and we apply cross entropy as loss function, we may get a trivial solution that is for all class $c$,  $p_m(y=c|x;\theta) = 1$. Softmax is a widely used normalization functions, but when the number of category is large, the computational complexity of the denominator of softmax is extremely expensive.</p>
+
+<p>Actually I think avoiding calculating the denominator of softmax is the main contribution of NCE.</p>
+
+<h2 id="5-where-is-k-from">5 Where is K From</h2>
+
+<p>In practice, for instance in the application of tf.nn.nce_loss, we modify the loss function to 
+<script type="math/tex">J_T(\theta) = \frac{1}{2T}\sum{\bigg[\sum_{i=1}^{M}\ln[h(\textbf{w}_{t,d,i};\textbf{c}_t;\theta)] + \sum_{j=1}^{K}\ln[1-h(\textbf{w}_{t,n,j};\textbf{c}_t;\theta)]\bigg]}</script>
+.</p>
+
+<p>Usually we set $M=1$ just like tf.nn.nce_loss set the default num_true to be 1.</p>
+
+<p>Now notice that $\frac{\sum\limits_wN_d(c,w)}{M} = \frac{\sum\limits_wN_n(c,w)}{K} = N(c)$ ,  we have
+<script type="math/tex">% <![CDATA[
+\begin{equation}\begin{split}p_m(w\|c;\theta)&=p_n(w)\cdot\exp{G(c;w;\theta)}\\ &\approx p_n(w)\frac{N_d(c,w)}{N_n(\textbf(c,w))} \\ &\approx  p_n(w)\frac{M \cdot N(c) \cdot p_d(w\|c)}{K \cdot N(c) \cdot p_n(w))} \\ &= \frac{M}{K}p_d(w\|c)\end{split}\end{equation} %]]></script></p>
+
+<p>I notice that when $M \ne K$, the logit is not modeling $\frac{M}{K}p_d(w|c)$ instead of $p_d(w|c)$ . But certainly we can estimate  $p_d(w|c)$ by</p>
+
+<script type="math/tex; mode=display">\widehat{p}_d(w\|c) = \frac{K}{M}p_m(w\|c;\theta)</script>
+
+<p>.</p>
+
+<p>Similarly
+<script type="math/tex">\sum_w p_m(w\|c;\theta) = \frac{M}{K}\sum_w p_d(w\|c) = \frac{M}{K}</script>
+, the model is not self-normalized to add up to 1 but $\frac{M}{K}$. But it does not matter.</p>
+
+<h2 id="6-choice-of-noise-distribution">6 Choice of Noise Distribution</h2>
+
+<p>Intuitively, the noise distribution should be close to the data distribution, because otherwise, the classification problem might be too easy and would not require the system to learn much about the structure of the data.</p>
+
+<p>In practice, uniform distribution or Gaussian distribution performs good.</p>
+
+<h2 id="reference">Reference</h2>
+
+<ul>
+  <li>Noise-contrastive estimation: A new estimation principle for unnormalized statistical models</li>
+  <li>Notes on Noise Contrastive Estimation and Negative Sampling</li>
+  <li>A fast and simple algorithm for training neural probabilistic language models</li>
+  <li>Representation Learning with Contrastive Predictive Coding</li>
+  <li><a href="https://leimao.github.io/article/Noise-Contrastive-Estimation/">https://leimao.github.io/article/Noise-Contrastive-Estimation/</a></li>
+</ul>
+:ET
