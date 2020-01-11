@@ -6,6 +6,4 @@ layout: single
 author_profile: true
 title: "FANGQUAN LIN"
 ---
-<head>
-<link rel="shortcut icon" type="image/x-icon" href="/assets/images/favicon.ico">
-</head>
+
