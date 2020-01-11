@@ -1,9 +1,9 @@
 # main links
 main:
-  - title: "ABOUT"
-    url: /about/
   - title: "ARTICLES"
     url: /categories/
+  - title: "ABOUT"
+    url: /about/
 #  - title: "Articles"
 #    url:  /articles/
   # - title: "Sample Posts"
