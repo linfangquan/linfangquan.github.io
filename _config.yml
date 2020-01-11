@@ -29,11 +29,7 @@ url: "" # the base hostname & protocol for your site, e.g. http://example.com
 github_username:  linfangquan
 
 # Build settings
-# theme: minima
 
-# theme: minimal-mistakes-jekyll
-
-remote_theme: "mmistakes/minimal-mistakes"
 
 plugins:
   - jekyll-feed
@@ -86,12 +82,19 @@ footer:
       url: "https://www.linkedin.com/in/linfq/"
 
 # Site Settings
+remote_theme: "mmistakes/minimal-mistakes"
+minimal_mistakes_skin: "sunrise"
 locale: "en-US"
 title                    : "LINFQ'S BLOG"
 title_separator          : "-"
 subtitle                 : ""
 name                     : &name "Fangquan Lin" # &name is a YAML anchor which can be *referenced later
 description              : &description "A flexible Jekyll theme for your blog or site with a minimalist aesthetic."
+logo: "/assets/images/logo.jpg"
+masthead_title: "My Custom Title"
+teaser: "/assets/images/linfq.jpg"
+
+
 
 
 defaults:
@@ -101,3 +104,5 @@ defaults:
       type: posts
     values:
       author_profile: true
+      read_time: true
+      comments: true
