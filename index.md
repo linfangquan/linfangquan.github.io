@@ -5,7 +5,7 @@ permalink: /
 layout: single
 author_profile: true
 title: "FANGQUAN LIN"
-
-
 ---
-
+<head>
+<link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+</head>
