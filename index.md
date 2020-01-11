@@ -6,4 +6,4 @@ layout: single
 author_profile: true
 title: "FANGQUAN LIN"
 ---
-
+![avatar](/assets/images/phuket1.jpg)
