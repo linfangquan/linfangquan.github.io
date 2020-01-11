@@ -111,14 +111,13 @@ author:
   avatar           : "/assets/images/linfq.jpg"
   bio: "A Machine Learning Engineer"
   location: "China"
-  email: "fangquanlin@gmail.com"
   links:
     - label: "Email"
       icon: "fas fa-fw fa-envelope-square"
       url: mailto:fangquanlin@gmail.com
-    - label: "Website"
-      icon: "fas fa-fw fa-link"
-      url: "https://linfangquan.github.io/"
+#    - label: "Website"
+#      icon: "fas fa-fw fa-link"
+#      url: "https://linfangquan.github.io/"
 #    - label: "Twitter"
 #      icon: "fab fa-fw fa-twitter-square"
 #      # url: "https://twitter.com/"
